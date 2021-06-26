@@ -1,4 +1,4 @@
- /*
+/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -26,6 +26,7 @@ public class UserView {
     UserDataIO userDataIO;
     static Validate validate = new Validate();
     public static UserView userView = null;
+    int count = 0;
 
     public UserView() {
         users = new ArrayList<>();
@@ -40,13 +41,18 @@ public class UserView {
         return userView;
     }
 
-    public Specialization selectSpecialization() {
-        int count = 0;
+    public void countSpecialization() {
         for (Specialization currentSpecialization : Specialization.values()) {
             count++;
+        }
+    }
+
+    public Specialization selectSpecialization(int selection) {
+
+        for (Specialization currentSpecialization : Specialization.values()) {
             System.out.println(count + ". " + currentSpecialization.name());
         }
-        return Specialization.values()[boundary.Validate.getINT_LIMIT("Select specialization: ", 1, count) - 1];
+        return Specialization.values()[selection - 1];
     }
 
     public ArrayList<User> getUsers() {
@@ -59,7 +65,7 @@ public class UserView {
         userDataIO.writeData(users);
     }
 
-        public void deleteUser(String userCode) {
+    public void deleteUser(String userCode) {
         users = userDataIO.readData();
         for (User u : users) {
             if (u.getUserCode() != null) {
@@ -85,11 +91,11 @@ public class UserView {
         userDataIO.writeData(users);
     }
 
-    public String inputUserCode() throws IOException {
+    public String inputUserCode(ArrayList<User> users) throws IOException {
         while (true) {
             String code = validate.getUsername("input new user code: ");
             for (User u : users) {
-                if (u.getUserCode() != null) {//chi check nhung user co usercode
+                if (u.getUserCode() != null) {
                     if (u.getUserCode().equalsIgnoreCase(code)) {
                         code = null;
                         break;
@@ -104,7 +110,25 @@ public class UserView {
         }
     }
 
-    public String inputUserName() throws IOException {
+    public String inputUserCodeWithACode(ArrayList<User> users, String code) throws IOException {
+        while (true) {
+            for (User u : users) {
+                if (u.getUserCode() != null) {
+                    if (u.getUserCode().equalsIgnoreCase(code)) {
+                        code = null;
+                        break;
+                    }
+                }
+            }
+            if (code == null) {
+                return null;
+            } else {
+                return code;
+            }
+        }
+    }
+
+    public String inputUserName(ArrayList<User> users) throws IOException {
         while (true) {
             String userName = validate.getUsername("Type in the new UserName: ");
             for (User u : users) {
@@ -123,7 +147,25 @@ public class UserView {
         }
     }
 
-    public int getNewDoctorHighestID() {
+    public String inputUserNameWithAName(ArrayList<User> users, String userName) throws IOException {
+        while (true) {
+            for (User u : users) {
+                if (u.getUserName() != null) {
+                    if (u.getUserName().equals(userName)) {
+                        userName = null;
+                        break;
+                    }
+                }
+            }
+            if (userName == null) {
+                return null;
+            } else {
+                return userName;
+            }
+        }
+    }
+
+    public int getNewDoctorHighestID(ArrayList<User> users) {
         int id = 0;
         for (User u : users) {
             if (u.getUserRole().equals(UserRole.DOCTOR) || u.getUserRole().equals(UserRole.AUTHORIZED_DOCTOR)) {
@@ -133,7 +175,7 @@ public class UserView {
                 }
             }
         }
-        return id+1;
+        return id + 1;
     }
 
     // function4.2
@@ -142,6 +184,7 @@ public class UserView {
         String askPass = "Type in your Password: ";
         String askDoctorSpecialization = "Enter doctor Specialization: ";
         String askDoctorAvailability = "Enter availability: ";
+        int selection;
         int choice;
         try {
             System.out.println("what account you want to create\n" + "1.Admin\n" + "2.Authorized_Doctor\n"
@@ -150,8 +193,11 @@ public class UserView {
             if (choice == 0) {
                 return;
             }
-            String UserCode = inputUserCode();
-            String UserName = inputUserName();
+
+            String UserCode = inputUserCode(this.users);
+
+            String UserName = inputUserName(this.users);
+
             String password;
             switch (choice) {
                 case 1://admin
@@ -163,41 +209,42 @@ public class UserView {
                 case 2://authDoctor
                     String authDocName = validate.getUsername("Enter the doctor name: ");
                     password = validate.getPassword(askPass);
-                    int AuthDocID = getNewDoctorHighestID();
-                    
+                    int AuthDocID = getNewDoctorHighestID(this.users);
+
                     Doctor newAuthDoctor = new Doctor(UserCode, UserName, password, UserRole.AUTHORIZED_DOCTOR);
-                    
+
                     newAuthDoctor.setDoctorId(AuthDocID);
                     newAuthDoctor.setName(authDocName);
-                    
+
                     System.out.print(askDoctorSpecialization);
-                    
-                    newAuthDoctor.setSpecialization(selectSpecialization());
+                    selection = boundary.Validate.getINT_LIMIT("Select specialization: ", 1, count);
+                    newAuthDoctor.setSpecialization(selectSpecialization(selection));
                     newAuthDoctor.setAvailability(validate.getDate_LimitToCurrent(askDoctorAvailability));
                     addUser(newAuthDoctor);
                     break;
 
                 case 3://doctor
                     String docName = validate.getUsername("Enter the doctor name: ");
-                    int docID = getNewDoctorHighestID();
+                    int docID = getNewDoctorHighestID(this.users);
                     password = validate.getPassword(askPass);
-                    
+
                     Doctor newDoctor = new Doctor(UserCode, UserName, password, UserRole.DOCTOR);
                     newDoctor.setDoctorId(docID);
                     newDoctor.setName(docName);
                     System.out.print(askDoctorSpecialization);
-                    newDoctor.setSpecialization(selectSpecialization());
+                    selection = boundary.Validate.getINT_LIMIT("Select specialization: ", 1, count);
+                    newDoctor.setSpecialization(selectSpecialization(selection));
                     newDoctor.setAvailability(validate.getDate_LimitToCurrent(askDoctorAvailability));
                     addUser(newDoctor);
                     break;
 
                 case 4://normal user
                     password = validate.getPassword("Type in your Password: ");
-                    User u = new User(UserCode,UserName, password, UserRole.USER);
+                    User u = new User(UserCode, UserName, password, UserRole.USER);
                     addUser(u);
                     break;
                 case 0:
-                    break;  
+                    break;
             }
 
         } catch (IOException e) {
@@ -207,7 +254,7 @@ public class UserView {
     }
 
     public User askUpdate(User updateMe) throws IOException {
-        updateMe.setUserName(inputUserName());
+        updateMe.setUserName(inputUserName(this.users));
         while (true) {
             String pass = validate.getPassword("Type in this account new password: ");
             if (pass.equals(validate.getPassword("Confirm account new password: "))) {

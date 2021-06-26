@@ -5,6 +5,7 @@
  */
 package Doctor;
 
+import Common.ConsoleColors;
 import Common.UserRole;
 import Consult.Specialization;
 import User.User;
@@ -29,7 +30,15 @@ public class DoctorView {
         users = new ArrayList<>();
         userDataIO = new UserDataIO();
     }
-
+    public  void printDoctorMenu() {
+        System.out.println(ConsoleColors.BLUE_BOLD + "--------------------------------");
+        System.out.println(ConsoleColors.BLUE_BOLD + "DOCTOR PANEL");
+        System.out.println(ConsoleColors.BLUE_BOLD + "1. Add/Update Patient info");
+        System.out.println(ConsoleColors.BLUE_BOLD + "2. View Doctor info incl. Patient info");
+        System.out.println(ConsoleColors.BLUE_BOLD + "3. Change password");
+        System.out.println(ConsoleColors.BLUE_BOLD + "4. Log out");
+        System.out.println(ConsoleColors.BLUE_BOLD + "--------------------------------");
+    }
     public Specialization selectSpecialization() {
         int count = 0;
         for (Specialization currentSpecialization : Specialization.values()) {

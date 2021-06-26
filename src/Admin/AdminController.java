@@ -14,12 +14,18 @@ import Consult.Specialization;
 import Utilities.Validate;
 import java.io.IOException;
 import Doctor.Doctor;
+import Doctor.DoctorView;
+import LoginLogout.LogController;
 import User.User;
+import static User.UserController.userController;
+import User.UserView;
 import Utilities.UserDataIO;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -37,12 +43,62 @@ public class AdminController {
 
     SimpleDateFormat dateFormat;
 
+    ConsultManager consultManager = new ConsultManager();
+
     public AdminController() {
         validate = new Validate();
         adminManager = new ValidationAdminManager();
         userDataIO = new UserDataIO();
         initMemoryData();
         dateFormat = new SimpleDateFormat("dd/MMM/yyyy");
+    }
+
+    public void adminMenu() {
+        int choice;
+        while (true) {
+            try {
+                AdminView.printAdminMenu();
+                choice = validate.getINT_LIMIT("Your choice: ", 1, 7);
+                switch (choice) {
+                    case 1:
+                        DoctorView d = new DoctorView();
+                        d.doFunction1();
+                        break;
+                    case 2:
+                        User user = userController.getLoggedInUser();
+                        processing(user);
+                        break;
+                    case 3:
+                        queryDoctorInfo();
+                        break;
+                    case 4:
+                        UserView u = new UserView();
+                        u.printOutMenu();
+                        break;
+                    case 5:
+                        functionBlock5();
+                        break;
+                    case 6:
+                      
+                        userController.changePassword();
+                        break;
+                    case 7:
+                        userController.logout();
+                        new LogController().loginMenu();
+                        new LogController().mainMenu();
+                        return;
+                    default:
+                        break;
+                }
+            } catch (IOException ex) {
+
+                break;
+            }
+        }
+    }
+
+    public void functionBlock5() {
+        consultManager.printUserByDiseaseType();
     }
 
     public void processing(User user1) throws IOException {
@@ -94,11 +150,11 @@ public class AdminController {
                     userDataIO.writeData(listUsers);
                     break;
                 case 2:
-                    
+
                     if (!listPatients.isEmpty()) {
-                        
+
                         updateAPatient(user1, doctorGotByUserCode);
-                        
+
                         userDataIO.writeData(listUsers);
                     } else {
                         System.out.println("This doctor is not in charge of any patient");
@@ -172,9 +228,9 @@ public class AdminController {
                     Specialization.valueOf(newDiseaseType),
                     newConsultDate,
                     newConsultNote);
-            
+
             new ConsultManager().updateConsult(user, patientid, cs);
-            
+
             break;
         }
     }
@@ -195,7 +251,7 @@ public class AdminController {
             if (doctorCode == 0) {
                 break;
             }
-            
+
             listUsers.forEach(u -> {
                 if (u.getUserRole() == UserRole.DOCTOR || u.getUserRole() == UserRole.AUTHORIZED_DOCTOR) {
                     Doctor doc = (Doctor) u;
@@ -205,7 +261,7 @@ public class AdminController {
                         System.out.println(ConsoleColors.BLUE_BOLD + "Patients : ");
 
                         doc.getPatients().forEach(p -> {
-                            System.out.println(ConsoleColors.PURPLE_BOLD + "PatientName: " + p.getName() + " |PatientDisease: " + p.getDiseaseType() + " |Date: " + p.getConsultDate()  );
+                            System.out.println(ConsoleColors.PURPLE_BOLD + "PatientName: " + p.getName() + " |PatientDisease: " + p.getDiseaseType() + " |Date: " + p.getConsultDate());
                             System.out.println(ConsoleColors.PURPLE_BOLD + "Note: " + p.getConsultNote());
                             System.out.println("***");
                         });

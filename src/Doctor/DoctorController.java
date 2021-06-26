@@ -5,19 +5,24 @@
  */
 package Doctor;
 
+import Admin.AdminController;
 import Admin.ValidationAdminManager;
 import Common.ConsoleColors;
 import Common.Patient;
 import Consult.Consult;
 import Consult.ConsultManager;
 import Consult.Specialization;
+import LoginLogout.LogController;
 import User.User;
+import static User.UserController.userController;
 import Utilities.UserDataIO;
 import Utilities.Validate;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -40,6 +45,39 @@ public class DoctorController {
         userDataIO = new UserDataIO();
         dateFormat = new SimpleDateFormat("dd/MMM/yyyy");
         initMemoryData();
+    }
+
+    public void doctorMenu() {
+        int choice;
+        while (true) {
+            try {
+                new DoctorView().printDoctorMenu();
+                choice = validate.getINT_LIMIT("Your choice: ", 1, 4);
+
+                switch (choice) {
+                    case 1:
+                        processing(userController.getLoggedInUser());
+                        break;
+                    case 2:
+                        new AdminController().queryDoctorInfo();
+                        break;
+                    case 3:
+               
+                        userController.changePassword();
+                        break;
+                    case 4:
+                        userController.logout();
+                        new LogController().loginMenu();
+                        new LogController().mainMenu();
+                        return;
+                    default:
+                        break;
+                }
+            } catch (IOException ex) {
+
+                break;
+            }
+        }
     }
 
     public void processing(User loggedInUser) throws IOException {
@@ -108,7 +146,6 @@ public class DoctorController {
                     consultDate,
                     consultNote);
 
-   
             break;
         }
 
@@ -118,7 +155,7 @@ public class DoctorController {
         while (true) {
             int patientid = validate.getINT_LIMIT("Enter patient id: ", 1, Integer.MAX_VALUE);
             Patient patient = validationAdminManager.getPatientByPatientID(patientid, listPatients);
-            
+
             if (patient == null) {
                 System.out.println(ConsoleColors.RED + "ID is not exist");
                 continue;
@@ -133,17 +170,17 @@ public class DoctorController {
             patient.setDiseaseType(newDiseaseType);
             patient.setConsultDate(newConsultDate);
             patient.setConsultNote(newConsultNote);
-            
-              Patient newPa = new Patient(patientid,
+
+            Patient newPa = new Patient(patientid,
                     newName, newDiseaseType, newConsultDate, newConsultNote);
 
-                Consult cs = new Consult(patientid,
+            Consult cs = new Consult(patientid,
                     doctorGotByUserCode,
                     newPa,
                     Specialization.valueOf(newDiseaseType),
                     newConsultDate,
                     newConsultNote);
-            
+
             new ConsultManager().updateConsult(doctorGotByUserCode, patientid, cs);
             break;
         }
