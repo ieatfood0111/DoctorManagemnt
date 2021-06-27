@@ -53,33 +53,45 @@ public class DoctorController {
             try {
                 new DoctorView().printDoctorMenu();
                 choice = validate.getINT_LIMIT("Your choice: ", 1, 4);
-
-                switch (choice) {
-                    case 1:
-                        processing(userController.getLoggedInUser());
-                        break;
-                    case 2:
-                        new AdminController().queryDoctorInfo();
-                        break;
-                    case 3:
-               
-                        userController.changePassword();
-                        break;
-                    case 4:
-                        userController.logout();
-                        new LogController().loginMenu();
-                        new LogController().mainMenu();
-                        return;
-                    default:
-                        break;
-                }
-            } catch (IOException ex) {
-
+                switchOnMenu(choice);
+            } catch (Exception ex) {
                 break;
             }
         }
     }
 
+    public void switchOnMenu(int choice) {
+        try {
+            switch (choice) {
+                case 1:
+                    processing(userController.getLoggedInUser());
+                    break;
+                case 2:
+                    new AdminController().queryDoctorInfo();
+                    break;
+                case 3:
+                    userController.changePassword();
+                    break;
+                case 4:
+                    userController.logout();
+                    new LogController().loginMenu();
+                    new LogController().mainMenu();
+                    return;
+                default:
+                    break;
+            }
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+
+    public void printOut(ArrayList<Patient> list) {
+        System.out.println(String.format("%-10s|%-15s|%-15s|%-15s|%-15s", "ID", "NAME", "DESEASE TYPE", "CONSULT DATE", "CONSULT NOTE"));
+        for (Patient patient : list) {
+            System.out.println(patient.toString(dateFormat));
+        }
+        System.out.println("");
+    }
     public void processing(User loggedInUser) throws IOException {
         initMemoryData();
         listUsers = userDataIO.readData();
@@ -94,11 +106,7 @@ public class DoctorController {
                 return;
             }
         } else {
-            System.out.println(String.format("%-10s|%-15s|%-15s|%-15s|%-15s", "ID", "NAME", "DESEASE TYPE", "CONSULT DATE", "CONSULT NOTE"));
-            for (Patient patient : listPatients) {
-                System.out.println(patient.toString(dateFormat));
-            }
-            System.out.println("");
+            printOut(listPatients);
         }
 
         printMENU_AddUpdatePatient();

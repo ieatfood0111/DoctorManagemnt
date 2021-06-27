@@ -78,8 +78,7 @@ public class AdminController {
                     case 5:
                         functionBlock5();
                         break;
-                    case 6:
-                      
+                    case 6:                     
                         userController.changePassword();
                         break;
                     case 7:

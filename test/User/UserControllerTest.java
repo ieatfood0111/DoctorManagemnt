@@ -116,6 +116,6 @@ public class UserControllerTest {
         uc.changePass(user, newPassword, confirmNewPassword, oldPassword);
         assertEquals(user.getPassword(), "userTestChangePassword");
     }
-
+    
 
 }

@@ -13,6 +13,7 @@ import Utilities.UserDataIO;
 import Utilities.Validate;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Scanner;
 
 /**
@@ -25,12 +26,14 @@ public class DoctorView {
     private ArrayList<User> users;
     private final UserDataIO userDataIO;
     private static final Validate validate = new Validate();
+    int count = 0;
 
     public DoctorView() {
         users = new ArrayList<>();
         userDataIO = new UserDataIO();
     }
-    public  void printDoctorMenu() {
+
+    public void printDoctorMenu() {
         System.out.println(ConsoleColors.BLUE_BOLD + "--------------------------------");
         System.out.println(ConsoleColors.BLUE_BOLD + "DOCTOR PANEL");
         System.out.println(ConsoleColors.BLUE_BOLD + "1. Add/Update Patient info");
@@ -39,13 +42,18 @@ public class DoctorView {
         System.out.println(ConsoleColors.BLUE_BOLD + "4. Log out");
         System.out.println(ConsoleColors.BLUE_BOLD + "--------------------------------");
     }
-    public Specialization selectSpecialization() {
-        int count = 0;
+
+    public void countSpecialization() {
         for (Specialization currentSpecialization : Specialization.values()) {
             count++;
+        }
+    }
+
+    public Specialization selectSpecialization(int selection) {
+        for (Specialization currentSpecialization : Specialization.values()) {
             System.out.println(count + ". " + currentSpecialization.name());
         }
-        return Specialization.values()[boundary.Validate.getINT_LIMIT("Select specialization: ", 1, count) - 1];
+        return Specialization.values()[selection - 1];
     }
 
     public ArrayList<User> getUsers() {
@@ -58,26 +66,53 @@ public class DoctorView {
         userDataIO.writeData(users);
     }
 
-    public void deleteUser(String userCode) {
-        users = userDataIO.readData();
+    public void deleteByCode(String userCode, ArrayList<User> users) {
+        System.out.println(users.size());
         for (User u : users) {
             if (u.getUserCode().equals(userCode)) {
                 users.remove(u);
                 break;
             }
         }
+    }
+
+    public void deleteUser(String userCode) {
+        users = userDataIO.readData();
+        deleteByCode(userCode, users);
         userDataIO.writeData(users);
     }
 
-    public void updateUser(User userUpdate) {
-        users = userDataIO.readData();
+    public void updateByUserCode(User userUpdate, ArrayList<User> users) {
         users.forEach((u) -> {
             if (u.getUserCode().equalsIgnoreCase(userUpdate.getUserCode())) {
                 u.setUserName(userUpdate.getUserName());
                 u.setPassword(userUpdate.getPassword());
             }
         });
+    }
+
+    public void updateUser(User userUpdate) {
+        users = userDataIO.readData();
+        updateByUserCode(userUpdate, users);
         userDataIO.writeData(users);
+    }
+
+    public String inputUserCodeWithACode(ArrayList<User> users, String code) throws IOException {
+        while (true) {
+            for (User u : users) {
+                if (u.getUserCode() != null) {
+                    if (u.getUserCode().equalsIgnoreCase(code)) {
+                        code = null;
+                        break;
+                    }
+                }
+            }
+            if (code == null) {
+                return null;
+            } else {
+                return code;
+            }
+        }
     }
 
     public String inputUserCode() throws IOException {
@@ -95,6 +130,24 @@ public class DoctorView {
                 System.out.println("This code already exist pls input another one");
             } else {
                 return code;
+            }
+        }
+    }
+
+    public String inputUserNameWithAName(ArrayList<User> users, String userName) throws IOException {
+        while (true) {
+            for (User u : users) {
+                if (u.getUserName() != null) {
+                    if (u.getUserName().equals(userName)) {
+                        userName = null;
+                        break;
+                    }
+                }
+            }
+            if (userName == null) {
+                return null;
+            } else {
+                return userName;
             }
         }
     }
@@ -118,7 +171,7 @@ public class DoctorView {
         }
     }
 
-    public int getNewDoctorHighestID() {
+    public int getNewDoctorHighestID(ArrayList<User> users) {
         int id = 0;
         for (User u : users) {
             if (u.getUserRole().equals(UserRole.DOCTOR) || u.getUserRole().equals(UserRole.AUTHORIZED_DOCTOR)) {
@@ -159,13 +212,13 @@ public class DoctorView {
                     userName = inputUserName();
                     password = validate.getPassword(askPass);
 
-                    authDocID = getNewDoctorHighestID();
-                    
+                    authDocID = getNewDoctorHighestID(this.users);
+
                     Doctor newAuthDoctor = new Doctor(userCode, userName, password, UserRole.AUTHORIZED_DOCTOR);
                     newAuthDoctor.setDoctorId(authDocID);
                     newAuthDoctor.setName(docName);
                     System.out.print(askDoctorSpecialization);
-                    newAuthDoctor.setSpecialization(selectSpecialization());
+                    newAuthDoctor.setSpecialization(selectSpecialization(count));
                     newAuthDoctor.setAvailability(validate.getDate_LimitToCurrent(askDoctorAvailability));
 
                     addUser(newAuthDoctor);
@@ -175,15 +228,15 @@ public class DoctorView {
                     userCode = inputUserCode();
                     userName = inputUserName();
                     password = validate.getPassword(askPass);
-                    
-                    authDocID = getNewDoctorHighestID();
-                    
+
+                    authDocID = getNewDoctorHighestID(this.users);
+
                     Doctor newDoctor = new Doctor(userCode, userName, password, UserRole.DOCTOR);
-                    
+
                     newDoctor.setDoctorId(authDocID);
                     newDoctor.setName(docName);
                     System.out.println(askDoctorSpecialization);
-                    newDoctor.setSpecialization(selectSpecialization());
+                    newDoctor.setSpecialization(selectSpecialization(count));
                     newDoctor.setAvailability(validate.getDate_LimitToCurrent(askDoctorAvailability));
 
                     addUser(newDoctor);
@@ -213,13 +266,19 @@ public class DoctorView {
                 }
             }
         }
-        String docName = validate.getString("Enter the doctor update name: ");
-        ((Doctor) updateMe).setName(docName);
-        System.out.print("Enter the doctor update Specialization: ");
-        ((Doctor) updateMe).setSpecialization(selectSpecialization());
-        
-        ((Doctor) updateMe).setAvailability(validate.getDate_LimitToCurrent("Enter doctor update availability: "));
 
+        String docName = validate.getString("Enter the doctor update name: ");
+        System.out.print("Enter the doctor update Specialization: ");
+        Specialization sp = selectSpecialization(count);
+        Date anvailable = validate.getDate_LimitToCurrent("Enter doctor update availability: ");
+
+        return update(updateMe, docName, sp, anvailable);
+    }
+
+    public User update(User updateMe, String docName, Specialization sp, Date anvalable) throws IOException {
+        ((Doctor) updateMe).setName(docName);
+        ((Doctor) updateMe).setSpecialization(sp);
+        ((Doctor) updateMe).setAvailability(anvalable);
         return updateMe;
     }
 
@@ -238,7 +297,7 @@ public class DoctorView {
     // function4.3
     public void findAndUpdateByDoctorID() throws IOException {
         users = getUsers();
-        
+
         while (true) {
             int id = validate.getINT("Enter doctorID that needed to be update");
             users = userDataIO.readData();
@@ -272,8 +331,7 @@ public class DoctorView {
         userDataIO.writeData(users);
     }
 
-    public void viewDoctor() throws IOException {
-        users = getUsers();
+    public void viewDoctor(ArrayList<User> users) throws IOException {
         System.out.println("List of all Doctor");
         for (User u : users) {
             if (u instanceof Doctor) {//check class so only print doctor   
@@ -302,7 +360,7 @@ public class DoctorView {
             choice = validate.getINT_LIMIT("Choose: ", 0, 4);
             switch (choice) {
                 case 1:
-                    viewDoctor();
+                    viewDoctor(getUsers());
                     break;
                 case 2:
                     inputNewDoctor();
