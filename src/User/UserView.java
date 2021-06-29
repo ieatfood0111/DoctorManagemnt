@@ -37,58 +37,12 @@ public class UserView {
         if (userView == null) {
             userView = new UserView();
         }
-
         return userView;
     }
 
-    public void countSpecialization() {
-        for (Specialization currentSpecialization : Specialization.values()) {
-            count++;
-        }
-    }
-
-    public Specialization selectSpecialization(int selection) {
-
-        for (Specialization currentSpecialization : Specialization.values()) {
-            System.out.println(count + ". " + currentSpecialization.name());
-        }
-        return Specialization.values()[selection - 1];
-    }
 
     public ArrayList<User> getUsers() {
         return userDataIO.readData();
-    }
-
-    public void addUser(User user) {
-        users = userDataIO.readData();
-        users.add(user);
-        userDataIO.writeData(users);
-    }
-
-    public void deleteUser(String userCode) {
-        users = userDataIO.readData();
-        for (User u : users) {
-            if (u.getUserCode() != null) {
-                if (u.getUserCode().equals(userCode)) {
-                    users.remove(u);
-                    break;
-                }
-            }
-        }
-        userDataIO.writeData(users);
-    }
-
-    public void updateUser(User userUpdate) {
-        users = userDataIO.readData();
-        users.forEach((u) -> {
-            if (u.getUserCode() != null) {
-                if (u.getUserCode().equalsIgnoreCase(userUpdate.getUserCode())) {
-                    u.setUserName(userUpdate.getUserName());
-                    u.setPassword(userUpdate.getPassword());
-                }
-            }
-        });
-        userDataIO.writeData(users);
     }
 
     public String inputUserCode(ArrayList<User> users) throws IOException {
@@ -165,18 +119,7 @@ public class UserView {
         }
     }
 
-    public int getNewDoctorHighestID(ArrayList<User> users) {
-        int id = 0;
-        for (User u : users) {
-            if (u.getUserRole().equals(UserRole.DOCTOR) || u.getUserRole().equals(UserRole.AUTHORIZED_DOCTOR)) {
-                int checkID = ((Doctor) u).getDoctorId();
-                if (checkID >= id) {
-                    id = checkID;
-                }
-            }
-        }
-        return id + 1;
-    }
+ 
 
     // function4.2
     public void inputNewUser() {
@@ -193,39 +136,38 @@ public class UserView {
             if (choice == 0) {
                 return;
             }
-
             String UserCode = inputUserCode(this.users);
-
             String UserName = inputUserName(this.users);
-
             String password;
             switch (choice) {
                 case 1://admin
                     password = validate.getPassword(askPass);
                     Admin newAdmin = new Admin(UserCode, UserName, password, UserRole.ADMIN);
-                    addUser(newAdmin);
+                    users = userDataIO.readData();
+                    new UserController().addUser(newAdmin,users);
+                    userDataIO.writeData(users);
                     break;
 
                 case 2://authDoctor
                     String authDocName = validate.getUsername("Enter the doctor name: ");
                     password = validate.getPassword(askPass);
-                    int AuthDocID = getNewDoctorHighestID(this.users);
+                    int AuthDocID =new UserController().getNewDoctorHighestID(this.users);
 
                     Doctor newAuthDoctor = new Doctor(UserCode, UserName, password, UserRole.AUTHORIZED_DOCTOR);
-
                     newAuthDoctor.setDoctorId(AuthDocID);
                     newAuthDoctor.setName(authDocName);
-
                     System.out.print(askDoctorSpecialization);
                     selection = boundary.Validate.getINT_LIMIT("Select specialization: ", 1, count);
-                    newAuthDoctor.setSpecialization(selectSpecialization(selection));
+                    newAuthDoctor.setSpecialization(new UserController().selectSpecialization(selection));
                     newAuthDoctor.setAvailability(validate.getDate_LimitToCurrent(askDoctorAvailability));
-                    addUser(newAuthDoctor);
+                    users = userDataIO.readData();
+                    new UserController().addUser(newAuthDoctor,users);
+                    userDataIO.writeData(users);
                     break;
 
                 case 3://doctor
                     String docName = validate.getUsername("Enter the doctor name: ");
-                    int docID = getNewDoctorHighestID(this.users);
+                    int docID = new UserController().getNewDoctorHighestID(this.users);
                     password = validate.getPassword(askPass);
 
                     Doctor newDoctor = new Doctor(UserCode, UserName, password, UserRole.DOCTOR);
@@ -233,15 +175,19 @@ public class UserView {
                     newDoctor.setName(docName);
                     System.out.print(askDoctorSpecialization);
                     selection = boundary.Validate.getINT_LIMIT("Select specialization: ", 1, count);
-                    newDoctor.setSpecialization(selectSpecialization(selection));
+                    newDoctor.setSpecialization(new UserController().selectSpecialization(selection));
                     newDoctor.setAvailability(validate.getDate_LimitToCurrent(askDoctorAvailability));
-                    addUser(newDoctor);
+                    users = userDataIO.readData();
+                    new UserController().addUser(newDoctor,users);
+                    userDataIO.writeData(users);
                     break;
 
                 case 4://normal user
                     password = validate.getPassword("Type in your Password: ");
                     User u = new User(UserCode, UserName, password, UserRole.USER);
-                    addUser(u);
+                    users = userDataIO.readData();
+                    new UserController().addUser(u,users);
+                    userDataIO.writeData(users);
                     break;
                 case 0:
                     break;
@@ -277,7 +223,9 @@ public class UserView {
                 if (find.getUserCode() != null) {
                     if (find.getUserCode().equals(code)) {
                         find = askUpdate(find);
-                        updateUser(find);
+                          users = userDataIO.readData();
+                        new UserController().updateUser(find,users);
+                         userDataIO.writeData(users);
                         return;
                     }
                 }
@@ -291,7 +239,9 @@ public class UserView {
     public void findAndDeletedByUserCode() throws IOException {
         users = getUsers();
         String code = validate.getUsername("Enter usercode needed to be deleted: ");
-        deleteUser(code);
+        users = userDataIO.readData();
+        new UserController().deleteUser(code,users);
+        userDataIO.writeData(users);
     }
 
     public void printOutMenu() throws IOException {

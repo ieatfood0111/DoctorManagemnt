@@ -5,10 +5,14 @@
  */
 package User;
 
+import Common.Patient;
 import Common.UserRole;
+import Consult.Specialization;
+import Doctor.Doctor;
 import static User.UserView.validate;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import org.junit.After;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -26,9 +30,20 @@ public class UserControllerTest {
 
     public UserControllerTest() {
         uc = new UserController();
+        User user = new User("userTest", "userTest", "userTest", UserRole.USER);
+        User user1 = new User("userTest1", "userTest1", "userTest", UserRole.USER);
+        User user2 = new User("userTest2", "userTest2", "userTest", UserRole.USER);
 
+        Doctor doctor2 = new Doctor(4, "doctorTest2", Specialization.TIM_MACH, new Date("22/12/2000"),
+                null, "doctorTest2", "doctorTest2", "doctorTest2", UserRole.DOCTOR);
+        users = new ArrayList<User>();
+        users.add(user);
+        users.add(user1);
+        users.add(user2);
+        users.add(doctor2);
+        new DataIO().writeData(users);
     }
- 
+
     @Test
     public void testLogin() throws IOException {
         users = new UserView().getUsers();
@@ -60,7 +75,7 @@ public class UserControllerTest {
         String userName = "++++";
         String password = "++++";
         assertFalse("testLogin: ", uc.login(userName, password));
-        
+
     }
 
     @Test
@@ -70,52 +85,110 @@ public class UserControllerTest {
     }
 
     @Test
-    public void testChangePassword() {
-        user = new User("userTestChangePassword", "userTestChangePassword", UserRole.USER);
-
-        String oldPassword = "userTestChangePassword";
-        String newPassword = "123";
-        String confirmNewPassword = "123";
-
-        uc.changePass(user, newPassword, confirmNewPassword, oldPassword);
-        assertEquals(user.getPassword(), "123");
+    public void testSelectSpecialization() {
+        Specialization sp = uc.selectSpecialization(1);
+        assertEquals(sp, Specialization.valueOf(sp.toString()));
     }
 
     @Test
-    public void testChangePassword1() {
-        user = new User("userTestChangePassword", "userTestChangePassword", UserRole.USER);
-
-        String oldPassword = "userTestChangePasswordNotRight";
-        String newPassword = "123";
-        String confirmNewPassword = "123";
-
-        uc.changePass(user, newPassword, confirmNewPassword, oldPassword);
-        assertEquals(user.getPassword(), "userTestChangePassword");
+    public void testGetUsers() {
+        users = uc.getUsers();
+        assertNotNull(users);
     }
 
     @Test
-    public void testChangePassword2() {
-        user = new User("userTestChangePassword", "userTestChangePassword", UserRole.USER);
+    public void testAddUser() {
+        User user = new User("userTestAdd", "userTestAdd", "userTestAdd", UserRole.USER);
+        users = new DataIO().readData();
+        uc.addUser(user, users);
+        new DataIO().writeData(users);
+        assertEquals(5, users.size());
+    }
 
-        String oldPassword = "userTestChangePassword";
-        String newPassword = "1234";
-        String confirmNewPassword = "123";
-
-        uc.changePass(user, newPassword, confirmNewPassword, oldPassword);
-        assertEquals(user.getPassword(), "userTestChangePassword");
+    @Test(expected = NullPointerException.class)
+    public void testAddUser1() {
+        User user = new User("", "", "", UserRole.USER);
+        users = new DataIO().readData();
+        uc.addUser(user, users);
     }
 
     @Test
-    public void testChangePassword3() {
-        user = new User("userTestChangePassword", "userTestChangePassword", UserRole.USER);
-
-        String oldPassword = "userTestChangePassword";
-        String newPassword = "123";
-        String confirmNewPassword = "1234";
-
-        uc.changePass(user, newPassword, confirmNewPassword, oldPassword);
-        assertEquals(user.getPassword(), "userTestChangePassword");
+    public void testDeleteUser() {
+        users = new DataIO().readData();
+        uc.deleteUser("userTest", users);
+        new DataIO().writeData(users);
+        users = new DataIO().readData();
+        assertEquals(users.size() + "", users.size(), 3);
     }
-    
 
+    @Test(expected = NullPointerException.class)
+    public void testDeleteUser1() {
+        users = new DataIO().readData();
+        uc.deleteUser("doctorTest5", users);
+        new DataIO().writeData(users);
+        users = new DataIO().readData();
+        assertEquals(users.size() + "", users.size(), 3);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testDeleteUser2() {
+        users = new DataIO().readData();
+        uc.deleteUser("", users);
+        new DataIO().writeData(users);
+        users = new DataIO().readData();
+        assertEquals(users.size() + "", users.size(), 3);
+    }
+
+    @Test
+    public void testUpdateUser() {
+        User userUpdate = new User("userTest2", "userTestUpdated", "userTestUpdated", UserRole.USER);
+        users = new DataIO().readData();
+        uc.updateUser(userUpdate, users);
+        new DataIO().writeData(users);
+        users = new DataIO().readData();
+        assertEquals(users.get(2).getPassword(), userUpdate.getPassword());
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testUpdateUser3() {
+        User userUpdate = new User("notFind", "userTestUpdated", "userTestUpdated", UserRole.USER);
+        users = new DataIO().readData();
+        uc.updateUser(userUpdate, users);
+        new DataIO().writeData(users);
+        users = new DataIO().readData();
+        assertEquals(users.get(2).getPassword(), userUpdate.getPassword());
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testUpdateUser1() {
+        User userUpdate = new User("", "userTestUpdated", "userTestUpdated", UserRole.USER);
+        users = new DataIO().readData();
+        uc.updateUser(userUpdate, users);
+        new DataIO().writeData(users);
+        users = new DataIO().readData();
+        assertEquals(users.get(2).getPassword(), userUpdate.getPassword());
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testUpdateUser2() {
+        User userUpdate = new User("userTest2", "", "", UserRole.USER);
+        users = new DataIO().readData();
+        uc.updateUser(userUpdate, users);
+        new DataIO().writeData(users);
+        users = new DataIO().readData();
+        assertEquals(users.get(2).getPassword(), userUpdate.getPassword());
+    }
+
+    @Test
+    public void testGetNewDoctorHighestID() {
+        users = new DataIO().readData();
+        int id = uc.getNewDoctorHighestID(users);
+        assertEquals(id, 5);
+    }
+     @Test
+    public void testGetNewDoctorHighestID1() {
+        users = new DataIO().readData();
+        int id = uc.getNewDoctorHighestID(users);
+        assertNotEquals(id, 6);
+    }
 }

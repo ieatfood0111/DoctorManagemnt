@@ -9,6 +9,7 @@ import Admin.AdminController;
 import Admin.ValidationAdminManager;
 import Common.ConsoleColors;
 import Common.Patient;
+import Common.UserRole;
 import Consult.Consult;
 import Consult.ConsultManager;
 import Consult.Specialization;
@@ -33,11 +34,12 @@ public class DoctorController {
     Validate validate;
     UserDataIO userDataIO;
     ValidationAdminManager validationAdminManager;
-
+    ArrayList<User> users;
     ArrayList<User> listUsers;
     ArrayList<Patient> listPatients;
     Doctor doctorGotByUserCode;
     SimpleDateFormat dateFormat;
+    int count = 0;
 
     public DoctorController() {
         validate = new Validate();
@@ -85,6 +87,13 @@ public class DoctorController {
         }
     }
 
+    public User update(User updateMe, String docName, Specialization sp, Date anvalable) throws IOException {
+        ((Doctor) updateMe).setName(docName);
+        ((Doctor) updateMe).setSpecialization(sp);
+        ((Doctor) updateMe).setAvailability(anvalable);
+        return updateMe;
+    }
+
     public void printOut(ArrayList<Patient> list) {
         System.out.println(String.format("%-10s|%-15s|%-15s|%-15s|%-15s", "ID", "NAME", "DESEASE TYPE", "CONSULT DATE", "CONSULT NOTE"));
         for (Patient patient : list) {
@@ -92,6 +101,7 @@ public class DoctorController {
         }
         System.out.println("");
     }
+
     public void processing(User loggedInUser) throws IOException {
         initMemoryData();
         listUsers = userDataIO.readData();
@@ -131,7 +141,7 @@ public class DoctorController {
 
     }
 
-    private void addNewPatient(Doctor doctor) throws IOException {
+    public void addNewPatient(Doctor doctor) throws IOException {
         while (true) {
             int patientid = validate.getINT_LIMIT("Enter patient id: ", 1, Integer.MAX_VALUE);
             Patient patient = validationAdminManager.getPatientByPatientID(patientid, listPatients);
@@ -207,4 +217,89 @@ public class DoctorController {
         System.out.println(ConsoleColors.BLUE_BOLD + "-----------------------------------");
     }
 
+    public void countSpecialization() {
+        for (Specialization currentSpecialization : Specialization.values()) {
+            count++;
+        }
+    }
+
+    public Specialization selectSpecialization(int selection) {
+        for (Specialization currentSpecialization : Specialization.values()) {
+            System.out.println(count + ". " + currentSpecialization.name());
+        }
+        return Specialization.values()[selection - 1];
+    }
+
+    public void viewDoctor(ArrayList<User> users) throws IOException {
+        System.out.println("List of all Doctor");
+        for (User u : users) {
+            if (u instanceof Doctor) {//check class so only print doctor   
+                System.out.print("DoctorID:" + ((Doctor) u).getDoctorId() + "; ");
+                System.out.println(u.toString());
+            }
+        }
+    }
+
+    void updateDoc(User docUpdate, ArrayList<User> users) {
+        users.forEach((u) -> {
+            if (u instanceof Doctor) {
+                if (((Doctor) u).getDoctorId() == ((Doctor) docUpdate).getDoctorId()) {
+                    u = docUpdate;
+                }
+            }
+        });
+    }
+
+    public int getNewDoctorHighestID(ArrayList<User> users) {
+        int id = 0;
+        for (User u : users) {
+            if (u.getUserRole().equals(UserRole.DOCTOR) || u.getUserRole().equals(UserRole.AUTHORIZED_DOCTOR)) {
+                int checkID = ((Doctor) u).getDoctorId();
+                if (checkID >= id) {
+                    id = checkID;
+                }
+            }
+        }
+        return id + 1;
+    }
+
+    public void addUser(User user, ArrayList<User> users) {
+        users.add(user);
+
+    }
+
+    public void deleteByCode(String userCode, ArrayList<User> users) {
+        System.out.println(users.size());
+        User test = null;
+        for (User u : users) {
+            if (u.getUserCode().equals(userCode)) {
+                users.remove(u);
+                break;
+            }
+        }
+        if (test == null) {
+            throw new NullPointerException();
+        }
+    }
+
+    public void deleteUser(String userCode) {
+        users = userDataIO.readData();
+        deleteByCode(userCode, users);
+        userDataIO.writeData(users);
+    }
+
+    public void updateByUserCode(User userUpdate, ArrayList<User> users) {
+        users.forEach((u) -> {
+            if (u.getUserCode().equalsIgnoreCase(userUpdate.getUserCode())) {
+                u.setUserName(userUpdate.getUserName());
+                u.setPassword(userUpdate.getPassword());
+            }
+        });
+    }
+
+    public void updateUser(User userUpdate) {
+        users = userDataIO.readData();
+        updateByUserCode(userUpdate, users);
+        userDataIO.writeData(users);
+    }
 }

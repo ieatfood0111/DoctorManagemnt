@@ -3,24 +3,17 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/Admin/Desktop/Bug2/Bug2/.git/config</file>
+            <file>file:/C:/Users/Admin/Desktop/Bug2/Bug2/test/Doctor/DoctorViewTest.java</file>
             <file>file:/C:/Users/Admin/Desktop/Bug2/Bug2/src/Consult/ConsultManager.java</file>
-            <file>file:/C:/Users/Admin/Desktop/Bug2/Bug2/src/Admin/AdminController.java</file>
+            <file>file:/C:/Users/Admin/Desktop/Bug2/Bug2/test/Doctor/DoctorControllerTest.java</file>
             <file>file:/C:/Users/Admin/Desktop/Bug2/Bug2/src/Utilities/Validate.java</file>
-            <file>file:/C:/Users/Admin/Desktop/Bug2/Bug2/src/User/UserView.java</file>
+            <file>file:/C:/Users/Admin/Desktop/Bug2/Bug2/src/Admin/AdminController.java</file>
             <file>file:/C:/Users/Admin/Desktop/Bug2/Bug2/src/Doctor/DoctorController.java</file>
-            <file>file:/C:/Users/Admin/Desktop/Bug2/Bug2/src/boundary/ConsultDataIO.java</file>
-            <file>file:/C:/Users/Admin/Desktop/Bug2/Bug2/src/Doctor/Doctor.java</file>
-            <file>file:/C:/Users/Admin/Desktop/Bug2/Bug2/test/User/UserControllerTest.java</file>
-            <file>file:/C:/Users/Admin/Desktop/Bug2/Bug2/src/User/User.java</file>
-            <file>file:/C:/Users/Admin/Desktop/Bug2/Bug2/src/Main.java</file>
-            <file>file:/C:/Users/Admin/Desktop/Bug2/Bug2/src/Doctor/DoctorView.java</file>
-            <file>file:/C:/Users/Admin/Desktop/Bug2/Bug2/src/boundary/UserDataIO.java</file>
-            <file>file:/C:/Users/Admin/Desktop/Bug2/Bug2/src/Common/Patient.java</file>
-            <file>file:/C:/Users/Admin/Desktop/Bug2/Bug2/src/Utilities/UserDataIO.java</file>
             <file>file:/C:/Users/Admin/Desktop/Bug2/Bug2/src/User/UserController.java</file>
-            <file>file:/C:/Users/Admin/Desktop/Bug2/Bug2/src/Admin/Admin.java</file>
+            <file>file:/C:/Users/Admin/Desktop/Bug2/Bug2/test/User/UserControllerTest.java</file>
             <file>file:/C:/Users/Admin/Desktop/Bug2/Bug2/src/Admin/AdminView.java</file>
+            <file>file:/C:/Users/Admin/Desktop/Bug2/Bug2/src/Doctor/DoctorView.java</file>
+            <file>file:/C:/Users/Admin/Desktop/Bug2/Bug2/src/Main.java</file>
         </group>
     </open-files>
 </project-private>

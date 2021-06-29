@@ -7,6 +7,8 @@ package User;
 
 import Common.ConsoleColors;
 import Common.UserRole;
+import Consult.Specialization;
+import Doctor.Doctor;
 import Utilities.UserDataIO;
 import Utilities.Validate;
 import java.io.IOException;
@@ -24,6 +26,8 @@ public class UserController {
     private User user;
     private UserDataIO userDataIO;
     private Validate validate;
+    ArrayList<User> users;
+    int count = 0;
 
     public static UserController getUserController() {
         return userController;
@@ -96,12 +100,18 @@ public class UserController {
         return false;
     }
 
+    public void addUser(User user, ArrayList<User> users) throws NullPointerException {
+        if (user.getUserCode().length() == 0 || user.getUserName().length() == 0 || user.getPassword().length() == 0) {
+            throw new NullPointerException();
+        }
+        users.add(user);
+    }
+
     public void logout() {
         this.user = null;
     }
 
     public void changePassword() {
-
         while (true) {
             try {
                 System.out.println(ConsoleColors.BLUE_BOLD + "--------------------------------");
@@ -137,7 +147,9 @@ public class UserController {
         if (user.getPassword().equals(oldPassword)) {
             if (confirmNewPassword.equals(newPassword)) {
                 user.setPassword(newPassword);
-                UserView.getInstance().updateUser(user);
+                users = userDataIO.readData();
+                updateUser(user, users);
+                userDataIO.writeData(users);
                 System.out.println(ConsoleColors.GREEN_BOLD + "Password changed successfully!!");
             } else {
                 System.out.println(ConsoleColors.RED + "Passwords don't match!!");
@@ -149,6 +161,72 @@ public class UserController {
 
     public User getLoggedInUser() {
         return user;
+    }
+
+    public ArrayList<User> getUsers() {
+        return userDataIO.readData();
+    }
+
+    public int getNewDoctorHighestID(ArrayList<User> users) {
+        int id = 0;
+        for (User u : users) {
+            if (u.getUserRole().equals(UserRole.DOCTOR) || u.getUserRole().equals(UserRole.AUTHORIZED_DOCTOR)) {
+                int checkID = ((Doctor) u).getDoctorId();
+                if (checkID >= id) {
+                    id = checkID;
+                }
+            }
+        }
+        return id + 1;
+    }
+
+    public void deleteUser(String userCode, ArrayList<User> users) throws NullPointerException {
+        User test = null;
+        for (User u : users) {
+            if (u.getUserCode() != null) {
+                if (u.getUserCode().equals(userCode)) {
+                    test = u;
+                    users.remove(u);
+                    break;
+                }
+            }
+        }
+        if (test == null) {
+            throw new NullPointerException();
+        }
+    }
+
+    public void updateUser(User userUpdate, ArrayList<User> users) {
+        if (userUpdate.getPassword().length()==0 || userUpdate.getUserCode().length()==0) {
+            throw new NullPointerException();
+        }
+        User test = null;
+        for (User u : users) {
+            if (u.getUserCode() != null) {
+                if (u.getUserCode().equalsIgnoreCase(userUpdate.getUserCode())) {
+                    test = u;
+                    u.setUserName(userUpdate.getUserName());
+                    u.setPassword(userUpdate.getPassword());
+                }
+            }
+        }
+        if (test == null) {
+            throw new NullPointerException();
+        }
+    }
+
+    public void countSpecialization() {
+        for (Specialization currentSpecialization : Specialization.values()) {
+            count++;
+        }
+    }
+
+    public Specialization selectSpecialization(int selection) {
+
+        for (Specialization currentSpecialization : Specialization.values()) {
+            System.out.println(count + ". " + currentSpecialization.name());
+        }
+        return Specialization.values()[selection - 1];
     }
 
 }
