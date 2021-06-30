@@ -78,7 +78,7 @@ public class AdminController {
                     case 5:
                         functionBlock5();
                         break;
-                    case 6:                     
+                    case 6:
                         new UserView().changePassword();
                         break;
                     case 7:
@@ -237,38 +237,53 @@ public class AdminController {
     public void queryDoctorInfo() throws IOException {
         while (true) {
             listUsers = userDataIO.readData();
+            Doctor doc = null;
             System.out.println(ConsoleColors.BLUE_BOLD + "List of all doctors: ");
-            listUsers.forEach(u -> {
+            for (User u : listUsers) {
                 if (u.getUserRole() == UserRole.DOCTOR || u.getUserRole() == UserRole.AUTHORIZED_DOCTOR) {
-                    Doctor doc = (Doctor) u;
+                    doc = (Doctor) u;
                     System.out.println(doc.getDoctorId() + " | " + doc.getName());
                 }
-            });
+            }
 
             int doctorCode = validate.getINT("Enter doctor code (Enter 0 to exit): ");
 
             if (doctorCode == 0) {
                 break;
             }
+            show(listUsers, doctorCode);
+        }
+    }
 
-            listUsers.forEach(u -> {
-                if (u.getUserRole() == UserRole.DOCTOR || u.getUserRole() == UserRole.AUTHORIZED_DOCTOR) {
-                    Doctor doc = (Doctor) u;
-                    if (doc.getDoctorId() == doctorCode) {
-                        System.out.println(ConsoleColors.BLUE_BOLD + "DoctorCode : " + doc.getDoctorId() + "| DoctorName " + doc.getName());
-                        System.out.println(ConsoleColors.BLUE_BOLD + "Availability : " + doc.getAvailability() + "| Spec: " + doc.getSpecialization());
-                        System.out.println(ConsoleColors.BLUE_BOLD + "Patients : ");
+    public void show(ArrayList<User> listUsers, int doctorCode) {
+        Doctor nullDoctor = null;
+        if (listUsers == null || listUsers.size() == 0) {
+            throw new NullPointerException();
+        }
+        for (User u : listUsers) {
+            if (u.getUserRole() == UserRole.DOCTOR || u.getUserRole() == UserRole.AUTHORIZED_DOCTOR) {
+                Doctor doc = (Doctor) u;
 
-                        doc.getPatients().forEach(p -> {
-                            System.out.println(ConsoleColors.PURPLE_BOLD + "PatientName: " + p.getName() + " |PatientDisease: " + p.getDiseaseType() + " |Date: " + p.getConsultDate());
-                            System.out.println(ConsoleColors.PURPLE_BOLD + "Note: " + p.getConsultNote());
-                            System.out.println("***");
-                        });
-
-                        System.out.println("------------");
+                if (doc.getDoctorId() == doctorCode) {
+                    nullDoctor = (Doctor) u;
+                    System.out.println(ConsoleColors.BLUE_BOLD + "DoctorCode : " + doc.getDoctorId() + "| DoctorName " + doc.getName());
+                    System.out.println(ConsoleColors.BLUE_BOLD + "Availability : " + doc.getAvailability() + "| Spec: " + doc.getSpecialization());
+                    System.out.println(ConsoleColors.BLUE_BOLD + "Patients : ");
+                    if (doc.getPatients() == null || doc.getPatients().size() == 0) {
+                        throw new NullPointerException();
                     }
+                    doc.getPatients().forEach(p -> {
+                        System.out.println(ConsoleColors.PURPLE_BOLD + "PatientName: " + p.getName() + " |PatientDisease: " + p.getDiseaseType() + " |Date: " + p.getConsultDate());
+                        System.out.println(ConsoleColors.PURPLE_BOLD + "Note: " + p.getConsultNote());
+                        System.out.println("***");
+                    });
+
+                    System.out.println("------------");
                 }
-            });
+            }
+        }
+        if(nullDoctor == null){
+            throw new NullPointerException();
         }
     }
 

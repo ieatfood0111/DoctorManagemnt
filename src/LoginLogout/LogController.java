@@ -39,9 +39,9 @@ public class LogController {
                     case 1:
                         String userName = validate.getString("Input username: ");
                         String password = validate.getString("Input password: ");
-                       
+
                         isLoggedIn = userController.login(userName, password);
-                         
+
                         break;
                 }
 
@@ -63,7 +63,7 @@ public class LogController {
             if (user.getUserRole() == UserRole.ADMIN) {
                 new AdminController().adminMenu();
             } else if (user.getUserRole() == UserRole.AUTHORIZED_DOCTOR) {
-                //doctorMenu();
+                new Doctor.DoctorController().doctorMenu();
             }
         }
     }
