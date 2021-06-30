@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 public class UserController {
 
     public static UserController userController = null;
-    private User user;
+    static User user;
     private UserDataIO userDataIO;
     private Validate validate;
     ArrayList<User> users;
@@ -93,10 +93,12 @@ public class UserController {
                     }
                 }
             }
+            System.out.println(user);
             return (user != null);
         } catch (Exception ex) {
             Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
         }
+
         return false;
     }
 
@@ -109,38 +111,6 @@ public class UserController {
 
     public void logout() {
         this.user = null;
-    }
-
-    public void changePassword() {
-        while (true) {
-            try {
-                System.out.println(ConsoleColors.BLUE_BOLD + "--------------------------------");
-                System.out.println(ConsoleColors.BLUE_BOLD + "CHANGE PASSWORD");
-                System.out.println(ConsoleColors.BLUE_BOLD + "1. Change Password");
-                System.out.println(ConsoleColors.BLUE_BOLD + "0. Cancel");
-                System.out.println(ConsoleColors.BLUE_BOLD + "--------------------------------");
-                int choice = validate.getINT_LIMIT("Your choice: ", 0, 1);
-                switch (choice) {
-                    case 0:
-                        return;
-                    case 1:
-                        if (user != null) {
-                            String oldPassword = validate.getString("Enter old password: ");
-                            if (user.getPassword().equals(oldPassword)) {
-                                String newPassword = validate.getPassword("Enter new password: ");
-                                String confirmNewPassword = validate.getPassword("Confirm new password: ");
-                                changePass(user, newPassword, confirmNewPassword, oldPassword);
-                            } else {
-                                System.out.println(ConsoleColors.RED + "Wrong password!!");
-                            }
-                        }
-                        break;
-                }
-
-            } catch (IOException ex) {
-                Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
     }
 
     public void changePass(User user, String newPassword, String confirmNewPassword, String oldPassword) {
@@ -160,7 +130,7 @@ public class UserController {
     }
 
     public User getLoggedInUser() {
-        return user;
+        return this.user;
     }
 
     public ArrayList<User> getUsers() {
@@ -197,7 +167,7 @@ public class UserController {
     }
 
     public void updateUser(User userUpdate, ArrayList<User> users) {
-        if (userUpdate.getPassword().length()==0 || userUpdate.getUserCode().length()==0) {
+        if (userUpdate.getPassword().length() == 0 || userUpdate.getUserCode().length() == 0) {
             throw new NullPointerException();
         }
         User test = null;

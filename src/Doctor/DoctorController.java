@@ -16,6 +16,7 @@ import Consult.Specialization;
 import LoginLogout.LogController;
 import User.User;
 import static User.UserController.userController;
+import User.UserView;
 import Utilities.UserDataIO;
 import Utilities.Validate;
 import java.io.IOException;
@@ -72,7 +73,7 @@ public class DoctorController {
                     new AdminController().queryDoctorInfo();
                     break;
                 case 3:
-                    userController.changePassword();
+                    new UserView().changePassword();
                     break;
                 case 4:
                     userController.logout();
@@ -119,7 +120,7 @@ public class DoctorController {
             printOut(listPatients);
         }
 
-        printMENU_AddUpdatePatient();
+        new DoctorView().printMENU_AddUpdatePatient();
 
         int choice = validate.getINT_LIMIT("Enter choice: ", 1, 2);
         switch (choice) {
@@ -210,12 +211,6 @@ public class DoctorController {
         doctorGotByUserCode = null;
     }
 
-    private void printMENU_AddUpdatePatient() {
-        System.out.println(ConsoleColors.BLUE_BOLD + "-----------------------------------");
-        System.out.println(ConsoleColors.BLUE_BOLD + "1. Add new a patient");
-        System.out.println(ConsoleColors.BLUE_BOLD + "2. Update a patient");
-        System.out.println(ConsoleColors.BLUE_BOLD + "-----------------------------------");
-    }
 
     public void countSpecialization() {
         for (Specialization currentSpecialization : Specialization.values()) {

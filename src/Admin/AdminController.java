@@ -79,7 +79,7 @@ public class AdminController {
                         functionBlock5();
                         break;
                     case 6:                     
-                        userController.changePassword();
+                        new UserView().changePassword();
                         break;
                     case 7:
                         userController.logout();

@@ -9,6 +9,7 @@ import Admin.AdminController;
 import Common.ConsoleColors;
 import Common.UserRole;
 import User.User;
+import User.UserController;
 import static User.UserController.userController;
 import Utilities.Validate;
 
@@ -38,7 +39,9 @@ public class LogController {
                     case 1:
                         String userName = validate.getString("Input username: ");
                         String password = validate.getString("Input password: ");
+                       
                         isLoggedIn = userController.login(userName, password);
+                         
                         break;
                 }
 

@@ -85,8 +85,14 @@ public class UserControllerTest {
     }
 
     @Test
-    public void testSelectSpecialization() {
+        public void testSelectSpecialization() {
         Specialization sp = uc.selectSpecialization(1);
+        assertEquals(sp, Specialization.valueOf(sp.toString()));
+    }
+
+    @Test(expected = ArrayIndexOutOfBoundsException.class)
+    public void testSelectSpecialization1() {
+        Specialization sp = uc.selectSpecialization(7);
         assertEquals(sp, Specialization.valueOf(sp.toString()));
     }
 
@@ -185,7 +191,8 @@ public class UserControllerTest {
         int id = uc.getNewDoctorHighestID(users);
         assertEquals(id, 5);
     }
-     @Test
+
+    @Test
     public void testGetNewDoctorHighestID1() {
         users = new DataIO().readData();
         int id = uc.getNewDoctorHighestID(users);

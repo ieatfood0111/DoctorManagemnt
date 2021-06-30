@@ -47,7 +47,12 @@ public class DoctorView {
         return userDataIO.readData();
     }
 
-
+    public void printMENU_AddUpdatePatient() {
+        System.out.println(ConsoleColors.BLUE_BOLD + "-----------------------------------");
+        System.out.println(ConsoleColors.BLUE_BOLD + "1. Add new a patient");
+        System.out.println(ConsoleColors.BLUE_BOLD + "2. Update a patient");
+        System.out.println(ConsoleColors.BLUE_BOLD + "-----------------------------------");
+    }
 
     public String inputUserCodeWithACode(ArrayList<User> users, String code) throws IOException {
         while (true) {
@@ -160,7 +165,7 @@ public class DoctorView {
                     newAuthDoctor.setSpecialization(new DoctorController().selectSpecialization(count));
                     newAuthDoctor.setAvailability(validate.getDate_LimitToCurrent(askDoctorAvailability));
                     users = userDataIO.readData();
-                    new DoctorController().addUser(newAuthDoctor,users);
+                    new DoctorController().addUser(newAuthDoctor, users);
                     userDataIO.writeData(users);
                     break;
 
@@ -179,7 +184,7 @@ public class DoctorView {
                     newDoctor.setSpecialization(new DoctorController().selectSpecialization(count));
                     newDoctor.setAvailability(validate.getDate_LimitToCurrent(askDoctorAvailability));
                     users = userDataIO.readData();
-                    new DoctorController().addUser(newDoctor,users);
+                    new DoctorController().addUser(newDoctor, users);
                     userDataIO.writeData(users);
                     break;
                 case 0:
@@ -215,8 +220,6 @@ public class DoctorView {
 
         return new DoctorController().update(updateMe, docName, sp, anvailable);
     }
-
-
 
     // function4.3
     public void findAndUpdateByDoctorID() throws IOException {

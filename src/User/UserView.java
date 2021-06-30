@@ -6,6 +6,7 @@
 package User;
 
 import Admin.Admin;
+import Common.ConsoleColors;
 import Common.UserRole;
 import Consult.Specialization;
 import Doctor.Doctor;
@@ -14,6 +15,8 @@ import Utilities.Validate;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -39,7 +42,6 @@ public class UserView {
         }
         return userView;
     }
-
 
     public ArrayList<User> getUsers() {
         return userDataIO.readData();
@@ -119,8 +121,6 @@ public class UserView {
         }
     }
 
- 
-
     // function4.2
     public void inputNewUser() {
         users = getUsers();
@@ -144,14 +144,14 @@ public class UserView {
                     password = validate.getPassword(askPass);
                     Admin newAdmin = new Admin(UserCode, UserName, password, UserRole.ADMIN);
                     users = userDataIO.readData();
-                    new UserController().addUser(newAdmin,users);
+                    new UserController().addUser(newAdmin, users);
                     userDataIO.writeData(users);
                     break;
 
                 case 2://authDoctor
                     String authDocName = validate.getUsername("Enter the doctor name: ");
                     password = validate.getPassword(askPass);
-                    int AuthDocID =new UserController().getNewDoctorHighestID(this.users);
+                    int AuthDocID = new UserController().getNewDoctorHighestID(this.users);
 
                     Doctor newAuthDoctor = new Doctor(UserCode, UserName, password, UserRole.AUTHORIZED_DOCTOR);
                     newAuthDoctor.setDoctorId(AuthDocID);
@@ -161,7 +161,7 @@ public class UserView {
                     newAuthDoctor.setSpecialization(new UserController().selectSpecialization(selection));
                     newAuthDoctor.setAvailability(validate.getDate_LimitToCurrent(askDoctorAvailability));
                     users = userDataIO.readData();
-                    new UserController().addUser(newAuthDoctor,users);
+                    new UserController().addUser(newAuthDoctor, users);
                     userDataIO.writeData(users);
                     break;
 
@@ -178,7 +178,7 @@ public class UserView {
                     newDoctor.setSpecialization(new UserController().selectSpecialization(selection));
                     newDoctor.setAvailability(validate.getDate_LimitToCurrent(askDoctorAvailability));
                     users = userDataIO.readData();
-                    new UserController().addUser(newDoctor,users);
+                    new UserController().addUser(newDoctor, users);
                     userDataIO.writeData(users);
                     break;
 
@@ -186,7 +186,7 @@ public class UserView {
                     password = validate.getPassword("Type in your Password: ");
                     User u = new User(UserCode, UserName, password, UserRole.USER);
                     users = userDataIO.readData();
-                    new UserController().addUser(u,users);
+                    new UserController().addUser(u, users);
                     userDataIO.writeData(users);
                     break;
                 case 0:
@@ -223,9 +223,9 @@ public class UserView {
                 if (find.getUserCode() != null) {
                     if (find.getUserCode().equals(code)) {
                         find = askUpdate(find);
-                          users = userDataIO.readData();
-                        new UserController().updateUser(find,users);
-                         userDataIO.writeData(users);
+                        users = userDataIO.readData();
+                        new UserController().updateUser(find, users);
+                        userDataIO.writeData(users);
                         return;
                     }
                 }
@@ -240,7 +240,7 @@ public class UserView {
         users = getUsers();
         String code = validate.getUsername("Enter usercode needed to be deleted: ");
         users = userDataIO.readData();
-        new UserController().deleteUser(code,users);
+        new UserController().deleteUser(code, users);
         userDataIO.writeData(users);
     }
 
@@ -282,6 +282,42 @@ public class UserView {
                     break;
             }
             userDataIO.writeData(users);
+        }
+    }
+
+    public void changePassword() {
+        User user = UserController.user;
+       
+        while (true) {
+            try {
+                System.out.println(ConsoleColors.BLUE_BOLD + "--------------------------------");
+                System.out.println(ConsoleColors.BLUE_BOLD + "CHANGE PASSWORD");
+                System.out.println(ConsoleColors.BLUE_BOLD + "1. Change Password");
+                System.out.println(ConsoleColors.BLUE_BOLD + "0. Cancel");
+                System.out.println(ConsoleColors.BLUE_BOLD + "--------------------------------");
+                int choice = validate.getINT_LIMIT("Your choice: ", 0, 1);
+                switch (choice) {
+                    case 0:
+                        return;
+                    case 1:
+                        if (user != null) {
+                            String oldPassword = validate.getString("Enter old password: ");
+                            if (user.getPassword().equals(oldPassword)) {
+                                String newPassword = validate.getPassword("Enter new password: ");
+                                String confirmNewPassword = validate.getPassword("Confirm new password: ");
+
+                                new UserController().changePass(user, newPassword, confirmNewPassword, oldPassword);
+
+                            } else {
+                                System.out.println(ConsoleColors.RED + "Wrong password!!");
+                            }
+                        }
+                        break;
+                }
+
+            } catch (IOException ex) {
+                Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
 
